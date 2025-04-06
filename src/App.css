@@ -1,0 +1,73 @@
+body {
+  background-color: #f5f7fa;
+  margin: 0;
+  display: flex;
+  height: 100vh;
+}
+
+.app-container {
+  display: flex;
+  width: 100%;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-grow: 1;
+  padding-left: 100px; /* Space for the sidebar */
+  padding-top: 20px;
+  height: 100vh; /* Full height */
+  overflow-x: hidden; /* Hide horizontal overflow */
+}
+
+.welcome-banner {
+  width: 30%; /* Keeps the banner width at 30% */
+  margin-bottom: 20px; /* Space between banner and content */
+}
+
+.banner-img {
+  width: 100%; /* Makes the image take up the full width of the banner */
+  height: auto; /* Keeps the aspect ratio intact */
+}
+
+.stockList {
+  width: 100%;
+  text-align: left;
+  padding-top: 5px; /* Space between the previous section and stock list */
+}
+
+.stock-scroll {
+  max-height: 300px; /* Set max height for scrollable stock list */
+  overflow-y: auto; /* Enable vertical scroll */
+  width: 100%; /* Ensure it occupies the full width */
+  margin-right: 0; /* Remove right margin that might push content */
+  box-sizing: border-box; /* Ensures padding doesn’t affect width */
+}
+
+.profile-picture {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+}
+
+@media (max-width: 768px) {
+  .content {
+    padding-left: 10px; /* Adjust padding for smaller screens */
+  }
+
+  .welcome-banner {
+    width: 100%; /* Make the welcome banner full width on smaller screens */
+  }
+}
+
+.interactiveFields {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 2rem; /* Space between fields and stock list */
+}
