@@ -9,7 +9,10 @@ import {
   List,
   ListItem,
   ListItemText,
+  useMediaQuery,
+  Stack,
 } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 import './App.css';
 import { useStocks } from './stockContext'; // Custom context hook
 
@@ -17,29 +20,28 @@ function App() {
   const [stockSymbol, setStockSymbol] = useState('');
   const [quantity, setQuantity] = useState('');
   const [purchasePrice, setPurchasePrice] = useState('');
-  const { stocks, addStock } = useStocks();
+  const { stocks, addStock, removeStock } = useStocks();
 
-  // 🧠 useCallback: fetch real-time stock price (only supports IBM with demo key)
+  const isMobile = useMediaQuery('(max-width:600px)');
+  const API_KEY = 'your_real_api_key_here'; // Replace with your actual API key
+
   const fetchStockPrice = useCallback(async (symbol) => {
     try {
-      if (symbol.toUpperCase() !== 'IBM') {
-        return 69; // Fallback placeholder price
+      if (symbol.toUpperCase() === 'IBM') {
+        const res = await fetch(
+          `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${API_KEY}`
+        );
+        const data = await res.json();
+        const price = data['Global Quote']?.['05. price'];
+        return price ? Number(price) : 69;
       }
-
-      const res = await fetch(
-        `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=IBM&apikey=demo`
-      );
-      const data = await res.json();
-      const price = data['Global Quote']?.['05. price'];
-
-      return price ? Number(price) : 69; // fallback to 69 if response is weird
+      return 69; // Fallback price for all other symbols
     } catch (err) {
       console.error('API fetch failed:', err);
       return 69;
     }
-  }, []);
+  }, [API_KEY]);
 
-  // 🌀 useEffect: debug stock changes
   useEffect(() => {
     console.log('📈 Stocks updated:', stocks);
   }, [stocks]);
@@ -50,10 +52,18 @@ function App() {
       return;
     }
 
-    const currentPrice = await fetchStockPrice(stockSymbol);
+    const symbolUpper = stockSymbol.toUpperCase();
+    const alreadyExists = stocks.some(stock => stock.stockSymbol === symbolUpper);
+
+    if (alreadyExists) {
+      alert(`${symbolUpper} is already in your list!`);
+      return;
+    }
+
+    const currentPrice = await fetchStockPrice(symbolUpper);
 
     const newStock = {
-      stockSymbol: stockSymbol.toUpperCase(),
+      stockSymbol: symbolUpper,
       quantity: Number(quantity),
       purchasePrice: Number(purchasePrice),
       currentPrice,
@@ -114,7 +124,14 @@ function App() {
           <h1>Finance Dashboard</h1>
         </div>
 
-        <div className="interactiveFields">
+        <Stack
+          className="interactiveFields"
+          direction={isMobile ? 'column' : 'row'}
+          spacing={1} // Reduced spacing
+          alignItems="center"
+          justifyContent="flex-start"
+          sx={{ flexWrap: 'wrap', marginBottom: '20px' }}
+        >
           <TextField
             label="Stock Symbol"
             variant="outlined"
@@ -140,10 +157,14 @@ function App() {
             onChange={(e) => setPurchasePrice(e.target.value)}
             size="small"
           />
-          <Button variant="contained" onClick={handleAddStock}>
+          <Button
+            variant="contained"
+            onClick={handleAddStock}
+            sx={{ whiteSpace: 'nowrap' }}
+          >
             Add Stock
           </Button>
-        </div>
+        </Stack>
 
         <div className="stockList">
           <h1>Stock List</h1>
@@ -180,6 +201,16 @@ function App() {
                         <strong>Profit/Loss:</strong> {profitLoss >= 0 ? '+' : '-'}
                         ${Math.abs(profitLoss).toFixed(2)}
                       </Typography>
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        size="small"
+                        startIcon={<DeleteIcon />}
+                        onClick={() => removeStock(stock.stockSymbol)}
+                        sx={{ marginTop: '10px' }}
+                      >
+                        Delete
+                      </Button>
                     </CardContent>
                   </Card>
                 );

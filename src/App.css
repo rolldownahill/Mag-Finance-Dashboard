@@ -66,7 +66,6 @@ body {
 
 .interactiveFields {
   display: flex;
-  gap: 1rem;
   align-items: center;
   justify-content: flex-start;
   margin-bottom: 2rem; /* Space between fields and stock list */
